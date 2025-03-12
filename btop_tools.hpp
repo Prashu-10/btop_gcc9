@@ -37,7 +37,7 @@ tab-size = 4
 #include <limits.h>
 #include <unordered_map>
 #ifdef BTOP_DEBUG
-#include <source_location>
+// #include <source_location>
 #endif
 #ifndef HOST_NAME_MAX
 	#ifdef __APPLE__
@@ -341,14 +341,14 @@ namespace Tools {
 
 	template <typename K, typename T>
 #ifdef BTOP_DEBUG
-	const T& safeVal(const std::unordered_map<K, T>& map, const K& key, const T& fallback = T{}, std::source_location loc = std::source_location::current()) {
-		if (map.contains(key)) {
-			return map.at(key);
-		} else {
-			Logger::error(fmt::format("safeVal() called with invalid key: [{}] in file: {} on line: {}", key, loc.file_name(), loc.line()));
-			return fallback;
-		}
-	};
+	const T& safeVal(const std::unordered_map<K, T>& map, const K& key, const T& fallback = T{}) {
+    if (map.find(key) != map.end()) {
+        return map.at(key);
+    } else {
+        Logger::error(fmt::format("safeVal() called with invalid key: [{}]", key));
+        return fallback;
+    }
+	}
 #else
 	const T& safeVal(const std::unordered_map<K, T>& map, const K& key, const T& fallback = T{}) {
 		if (map.contains(key)) {
@@ -362,14 +362,14 @@ namespace Tools {
 
 	template <typename T>
 #ifdef BTOP_DEBUG
-	const T& safeVal(const std::vector<T>& vec, const size_t& index, const T& fallback = T{}, std::source_location loc = std::source_location::current()) {
+	const T& safeVal(const std::vector<T>& vec, const size_t& index, const T& fallback = T{}, const char* file = __FILE__, int line = __LINE__) {
 		if (index < vec.size()) {
 			return vec.at(index);
 		} else {
-			Logger::error(fmt::format("safeVal() called with invalid index: [{}] in file: {} on line: {}", index, loc.file_name(), loc.line()));
+			Logger::error(fmt::format("safeVal() called with invalid index: [{}] in file: {} on line: {}", index, file, line));
 			return fallback;
 		}
-	};
+	}
 #else
 	const T& safeVal(const std::vector<T>& vec, const size_t& index, const T& fallback = T{}) {
 		if (index < vec.size()) {
